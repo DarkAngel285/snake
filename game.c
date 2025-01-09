@@ -1,4 +1,21 @@
-#include "game.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <time.h>
+#include <unistd.h>
+
+#define clear() printf("\x1b[H\x1b[J")
+#define gotoxy(x, y) printf("\x1b[%d;%dH", y, x)
+#define curhide(i) printf(i ? "\e[?25l" : "\e[?25h")
+
+#define MAXBYTES 3
+#define STDSLEEPTIME 1e5
+
+#define RED "\x1b[31m"
+#define GREEN "\x1b[32"
+#define YELLOW "\x1b[33"
+#define STD "\x1b[0m"
 
 struct Node {
   struct Node *next;
