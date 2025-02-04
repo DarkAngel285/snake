@@ -1,3 +1,6 @@
+#include "doubly_linked_list.h"
+#include "term_tweaks.h"
+#include "termios_init.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -5,44 +8,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#define clear() printf("\x1b[H\x1b[J")
-#define gotoxy(x, y) printf("\x1b[%d;%dH", y, x)
-#define curhide(i) printf(i ? "\e[?25l" : "\e[?25h")
-
 #define MAXBYTES 3
 #define STDSLEEPTIME 1e5
-
-#define RED "\x1b[31m"
-#define GREEN "\x1b[32m"
-#define YELLOW "\x1b[33m"
-#define STD "\x1b[0m"
-
-struct Node {
-  struct Node *next;
-  struct Node *prev;
-  int x, y;
-};
-
-struct Node *new_node(int x, int y) {
-  struct Node *node = (struct Node *)malloc(sizeof(struct Node));
-  node->next = NULL;
-  node->prev = NULL;
-  node->x = x;
-  node->y = y;
-  return node;
-}
-
-struct Node *add_to_head(struct Node *head, int x, int y) {
-  head->prev = new_node(x, y);
-  head->prev->next = head;
-  return head->prev;
-}
-
-struct Node *add_to_tail(struct Node *tail, int x, int y) {
-  tail->next = new_node(x, y);
-  tail->next->prev = tail;
-  return tail->next;
-}
 
 int snake_check(struct Node *head, int direction, struct winsize w) {
   if ((head->y == 1 && direction == 0) || (head->x == 1 && direction == 3) ||
@@ -174,26 +141,6 @@ void game(unsigned int *score) {
     free(head);
     head = next;
   }
-}
-
-void deinit(struct termios *oldt, unsigned int score) {
-  clear();
-  printf("Your score: %u\n", score);
-  fflush(stdout);
-  curhide(0);
-  tcsetattr(STDIN_FILENO, TCSANOW, oldt);
-}
-
-void init(struct termios *oldt, struct termios *newt) {
-  curhide(1);
-  clear();
-  fflush(stdout);
-  tcgetattr(STDIN_FILENO, oldt);
-  *newt = *oldt;
-  newt->c_lflag &= ~(ICANON | ECHO);
-  newt->c_cc[VMIN] = 0;
-  newt->c_cc[VTIME] = 0;
-  tcsetattr(STDIN_FILENO, TCSANOW, newt);
 }
 
 int main() {
